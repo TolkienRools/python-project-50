@@ -10,5 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - run: ls -a
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: pip install pytest pytest-cov
+
+      - name: Test & publish code coverage
+        uses: paambaati/codeclimate-action@v8.0.0
+        env:
+          CC_TEST_REPORTER_ID: 46fb2129de7b63ad675f59c18793db6a369f59eecb52ae61605097b8bfee1bab
+        with:
+          coverageCommand: pytest --cov
+          debug: true
+
+      - name: Run test command
+        run: ls -a
+        
