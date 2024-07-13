@@ -9,6 +9,9 @@ def get_output_string(path):
 	return result
 
 
+def test_bla_bla():
+	pass
+
 # def test_generate_diff_deep():
 # 	path_json_in_1 = 'fixtures/input/file1.json'
 # 	path_json_in_2 = 'fixtures/input/file2.json'
