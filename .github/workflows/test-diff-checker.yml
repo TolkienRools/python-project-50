@@ -5,29 +5,31 @@ on: push
 
 jobs:
 
-  build-test:
+  build:
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: 3.12
 
       - name: Install dependencies
-        run: pip install pytest pytest-cov
+        run: |
+          pip install poetry
+          make install
+
+      - name: Run linter and pytest(need fix)
+        run: make lint
 
       - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v8.0.0
+        uses: paambaati/codeclimate-action@v5.0.0
         env:
-          CC_TEST_REPORTER_ID: 46fb2129de7b63ad675f59c18793db6a369f59eecb52ae61605097b8bfee1bab
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
-          coverageCommand: pytest --cov=cover
+          coverageCommand: make test-cov
           debug: true
-
-      - name: Run test command
-        run: ls -a
