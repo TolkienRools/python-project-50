@@ -1,6 +1,7 @@
 import json
-from collections import OrderedDict
 import os
+import itertools
+
 
 def translate_to_json(value):
     if isinstance(value, bool):
@@ -10,65 +11,83 @@ def translate_to_json(value):
 
     return value
 
-def stringify(data, spaceholder=" ", spacer_repeat=1):
 
-    def inner_repeat(data, depth=1):
+def json_stringify(generated, replacer=' ', spaces_count=1):
 
-        if not isinstance(data, dict):
-            return translate_to_json(data)
+    def iter_(current_value, depth):
+        if not isinstance(current_value, dict):
+            return str(current_value)
 
-        spaces_number = depth * spacer_repeat - 2
-        spaces_number_end = (depth - 1) * spacer_repeat
+        deep_indent_size = depth + spaces_count
+        deep_indent = replacer * deep_indent_size
+        current_indent = replacer * depth
+        lines = []
 
-        result_string = "{\n"
-        for key, value in data.items():
-            result_string += ((spaceholder * spaces_number) +
-                              f"{key[0]} {key[1]}: {inner_repeat(value, depth+1)}\n")
-        result_string += (spaceholder * spaces_number_end) + "}"
+        # Создать проход по циклу
+        # for element in generated:
 
-        return result_string
+        for key, val in current_value.items():
+            lines.append(f'{deep_indent}{key}: {iter_(val, deep_indent_size)}')
+        result = itertools.chain("{", lines, [current_indent + "}"])
+        return '\n'.join(result)
 
-    return inner_repeat(data)
+    return iter_(generated, 0)
 
 
 def generate_diff(file_path1, file_path2):
     file1 = json.load(open(os.path.normpath(os.path.join(os.getcwd(),file_path1))))
     file2 = json.load(open(os.path.normpath(os.path.join(os.getcwd(),file_path2))))
 
+    def inner_(data1, data2):
 
-    def inner_(data):
+        out_store = []
 
-        if not isinstance(data, tuple):
-            if isinstance(data, dict):
-                return {(" ", key): inner_(value) for key, value in data.items()}
-            else:
-                return data
-
-        data1, data2 = data
-
-        out_dict = OrderedDict()
-
-        first_file_keys = set(data1.keys()) - set(data2.keys())
-        shared_file_keys = set(data1.keys()) & set(data2.keys())
+        add_keys = set(data2.keys()) - set(data1.keys())
+        del_keys = set(data1.keys()) - set(data2.keys())
 
         for key in sorted(set(data1.keys()) | set(data2.keys())):
+            # add
+            if key in add_keys:
+                out_store.append({
+                    "type": "add",
+                    "key": key,
+                    "value": data2[key]
+                })
 
-            if key in first_file_keys:
-                out_dict[("-", key)] = inner_(data1[key])
+            # delete
+            if key in del_keys:
+                out_store.append({
+                    "type": "del",
+                    "key": key,
+                    "value": data1[key]
+                })
 
-            elif key in shared_file_keys:
+            # nested  (two dicts, call recursion)
+            if isinstance(data1.get(key), dict) and isinstance(data2.get(key), dict):
+                out_store.append({
+                    "type": "nested",
+                    "key": key,
+                    "children": inner_(data1.get(key), data2.get(key))
+                })
 
-                if isinstance(data1[key], dict) and isinstance(data2[key], dict):
-                    out_dict[(" ", key)] = inner_((data1[key], data2[key]))
-                else:
-                    if data1[key] == data2[key]:
-                        out_dict[(" ", key)] = inner_(data1[key])
-                    else:
-                        out_dict[("-", key)] = inner_(data1[key])
-                        out_dict[("+", key)] = inner_(data2[key])
-            else:
-                out_dict[("+", key)] = inner_(data2[key])
+            # unchanged
+            if data1.get(key) == data2.get(key):
+                out_store.append({
+                    "type": "unchanged",
+                    "key": key,
+                    "value": data1[key]
+                })
+            # changed
+            if data1.get(key) != data2.get(key):
+                out_store.append({
+                    "type": "changed",
+                    "key": key,
+                    "old_value": data1[key],
+                    "new_value": data2[key]
+                })
 
-        return out_dict
+        return out_store
 
     return inner_((file1, file2))
+
+
