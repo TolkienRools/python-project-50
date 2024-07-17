@@ -1,6 +1,6 @@
 import json
-import os
 import itertools
+from pathlib import Path
 
 
 SEPARATOR = " "
@@ -81,9 +81,11 @@ def json_stringify(generated, spaces_count=4):
     return iter_(generated, 1)
 
 
-def generate_diff(file_path1, file_path2):
-    file1 = json.load(open(file_path1, "r"))
-    file2 = json.load(open(file_path2, "r"))
+def generate_diff(first_json, second_json):
+
+    # изменить загрузку по абсолютным и относительным путям
+    first_file = json.load(open(first_json, "r"))
+    second_file = json.load(open(second_json, "r"))
 
     def inner_(data1, data2):
 
@@ -134,4 +136,4 @@ def generate_diff(file_path1, file_path2):
 
         return out_store
 
-    return inner_(file1, file2)
+    return inner_(first_file, second_file)

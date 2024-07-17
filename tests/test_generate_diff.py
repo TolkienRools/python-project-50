@@ -1,30 +1,27 @@
 import pytest
+from pathlib import Path
 from gendiff.diff_funcs import generate_diff, json_stringify
 
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
-def get_output_string(path):
-	with open(path, 'r') as f:
+def get_output_string(out_file_name):
+	with open(FIXTURES_DIR / out_file_name, 'r') as f:
 		result = f.read()
 
 	return result
 
 
-def test_generate_diff_deep():
-	path_json_in_1 = 'tests/fixtures/first_deep.json'
-	path_json_in_2 = 'tests/fixtures/second_deep.json'
-	path_txt_out = 'tests/fixtures/out_deep.txt'
+@pytest.mark.parametrize("first_json,second_json,expected",
+                         [("first_flat.json", "second_flat.json",
+                           "out_flat.txt"),
+	                      ("first_deep.json", "second_deep.json",
+                           "out_deep.txt")])
+def test_generate_diff(first_json, second_json, expected):
+	first_json_in = FIXTURES_DIR / first_json
+	second_json_in = FIXTURES_DIR / second_json
+	expected_txt = FIXTURES_DIR / expected
 
-	inner_state = generate_diff(path_json_in_1, path_json_in_2)
+	inner_state = generate_diff(first_json_in, second_json_in)
 	result = json_stringify(inner_state)
 
-	assert result == get_output_string(path_txt_out)
-
-def test_generate_diff_flat():
-	path_json_in_1 = 'tests/fixtures/first_flat.json'
-	path_json_in_2 = 'tests/fixtures/second_flat.json'
-	path_txt_out = 'tests/fixtures/out_flat.txt'
-
-	inner_state = generate_diff(path_json_in_1, path_json_in_2)
-	result = json_stringify(inner_state)
-
-	assert result == get_output_string(path_txt_out)
+	assert result == get_output_string(expected_txt)
