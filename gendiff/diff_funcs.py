@@ -3,72 +3,76 @@ import os
 import itertools
 
 
-def translate_to_json(value):
-    if isinstance(value, bool):
-        return str(value).lower()
-    if value is None:
+SEPARATOR = " "
+
+
+def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
+    if isinstance(inner_value, bool):
+        return str(inner_value).lower()
+    if inner_value is None:
         return "null"
 
-    # обработка, если словарь, поможет с теми, что сейчас плоские 
+    if isinstance(inner_value, dict):
 
-    return value
+        specer_size = depth * spaces_count
+        deep_indent = SEPARATOR * (specer_size - indent)
+        current_indent = SEPARATOR * (specer_size - spaces_count)
 
+        lines = []
 
-# def single_value_tree(simple_dict, depth, spaces_count, replacer, indent):
-#
-#     if not isinstance(simple_dict, dict):
-#         return str(simple_dict)
-#
-#     lines = []
-#     specer_size = depth * spaces_count
-#     current_indent = replacer * depth
-#
-#     for key, value in simple_dict.items():
-#         deep_indent = replacer * (specer_size - indent)
-#         lines.append(f'{deep_indent}  {key}: {single_value_tree(value, depth, spaces_count, replacer, indent)}')
-#
-#     result = itertools.chain("{", lines, [current_indent + "}"])
-#     return '\n'.join(result)
+        for key, value in inner_value.items():
+            tranlated_value = translate_to_simple(value, depth+1,
+                                                  spaces_count,
+                                                  indent)
+            lines.append(f'{deep_indent}  {key}: {tranlated_value}')
+
+        result = itertools.chain("{", lines, [current_indent + "}"])
+        return '\n'.join(result)
+
+    return inner_value
 
 
-def json_stringify(generated, replacer=' ', spaces_count=4):
+def json_stringify(generated, spaces_count=4):
 
     indent = 2
 
     def iter_(current_value, depth):
-        # if isinstance(current_value, dict):
-        #     return single_value_tree(current_value, depth, spaces_count, replacer, indent)
         if not isinstance(current_value, list):
             return str(current_value)
 
-        # deep_indent_size = depth + spaces_count
         specer_size = depth * spaces_count
-        current_indent = replacer * (depth * spaces_count)
+        deep_indent = SEPARATOR * (specer_size - indent)
+        current_indent = SEPARATOR * (specer_size - spaces_count)
+
         lines = []
 
-        # print("LEVEL", depth, generated)
-        # Создать проход по циклу
         for element in current_value:
 
-            if element["type"] == "add":
-                deep_indent = replacer * (specer_size - indent)
-                lines.append(f'{deep_indent}+ {element["key"]}: {element["value"]}')
+            if element["type"] in ("add", "del", "unchanged"):
+                value = translate_to_simple(element["value"],
+                                            depth + 1, spaces_count,
+                                            indent)
 
-            if element["type"] == "del":
-                deep_indent = replacer * (specer_size - indent)
-                lines.append(f'{deep_indent}- {element["key"]}: {element["value"]}')
+                if element["type"] == "add":
+                    lines.append(f'{deep_indent}+ {element["key"]}: {value}')
 
-            if element["type"] == "unchanged":
-                deep_indent = replacer * (specer_size - indent)
-                lines.append(f'{deep_indent}  {element["key"]}: {element["value"]}')
+                elif element["type"] == "del":
+                    lines.append(f'{deep_indent}- {element["key"]}: {value}')
 
-            if element["type"] == "changed":
-                deep_indent = replacer * (specer_size - indent)
-                lines.append(f'{deep_indent}- {element["key"]}: {element["old_value"]}')
-                lines.append(f'{deep_indent}+ {element["key"]}: {element["new_value"]}')
+                elif element["type"] == "unchanged":
+                    lines.append(f'{deep_indent}  {element["key"]}: {value}')
 
-            if element["type"] == "nested":
-                deep_indent = replacer * (specer_size - indent)
+            elif element["type"] == "changed":
+                old_value = translate_to_simple(element["old_value"],
+                                                depth + 1, spaces_count,
+                                                indent)
+                new_value = translate_to_simple(element["new_value"],
+                                                depth + 1, spaces_count,
+                                                indent)
+                lines.append(f'{deep_indent}- {element["key"]}: {old_value}')
+                lines.append(f'{deep_indent}+ {element["key"]}: {new_value}')
+
+            elif element["type"] == "nested":
                 lines.append(f'{deep_indent}  {element["key"]}: {iter_(element["children"], depth + 1)}')
 
         result = itertools.chain("{", lines, [current_indent + "}"])
@@ -87,7 +91,6 @@ def generate_diff(file_path1, file_path2):
 
         add_keys = set(data2.keys()) - set(data1.keys())
         del_keys = set(data1.keys()) - set(data2.keys())
-        # shared_keys = set(data1.keys()) & set(data2.keys())
 
         for key in sorted(set(data1.keys()) | set(data2.keys())):
             # add
