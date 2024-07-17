@@ -1,6 +1,5 @@
 import json
 import itertools
-from pathlib import Path
 
 
 SEPARATOR = " "
@@ -21,7 +20,7 @@ def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
         lines = []
 
         for key, value in inner_value.items():
-            tranlated_value = translate_to_simple(value, depth+1,
+            tranlated_value = translate_to_simple(value, depth + 1,
                                                   spaces_count,
                                                   indent)
             lines.append(f'{deep_indent}  {key}: {tranlated_value}')
@@ -35,6 +34,8 @@ def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
 def json_stringify(generated, spaces_count=4):
 
     indent = 2
+
+    signs_convert = {"add": "+", "del": "-", "unchanged": " "}
 
     def iter_(current_value, depth):
         if not isinstance(current_value, list):
@@ -53,14 +54,8 @@ def json_stringify(generated, spaces_count=4):
                                             depth + 1, spaces_count,
                                             indent)
 
-                if element["type"] == "add":
-                    lines.append(f'{deep_indent}+ {element["key"]}: {value}')
-
-                elif element["type"] == "del":
-                    lines.append(f'{deep_indent}- {element["key"]}: {value}')
-
-                elif element["type"] == "unchanged":
-                    lines.append(f'{deep_indent}  {element["key"]}: {value}')
+                lines.append(f'{deep_indent}{signs_convert[element["type"]]}'
+                             f' {element["key"]}: {value}')
 
             elif element["type"] == "changed":
                 old_value = translate_to_simple(element["old_value"],
@@ -73,7 +68,8 @@ def json_stringify(generated, spaces_count=4):
                 lines.append(f'{deep_indent}+ {element["key"]}: {new_value}')
 
             elif element["type"] == "nested":
-                lines.append(f'{deep_indent}  {element["key"]}: {iter_(element["children"], depth + 1)}')
+                lines.append(f'{deep_indent}  {element["key"]}:'
+                             f' {iter_(element["children"], depth + 1)}')
 
         result = itertools.chain("{", lines, [current_indent + "}"])
         return '\n'.join(result)
@@ -112,7 +108,8 @@ def generate_diff(first_json, second_json):
                 })
 
             # nested  (two dicts, call recursion)
-            elif isinstance(data1.get(key), dict) and isinstance(data2.get(key), dict):
+            elif (isinstance(data1.get(key), dict)
+                  and isinstance(data2.get(key), dict)):
                 out_store.append({
                     "type": "nested",
                     "key": key,
