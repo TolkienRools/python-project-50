@@ -137,5 +137,5 @@ def generate_diff(file_path1, file_path2):
     return inner_(file1, file2)
 
 
-print(generate_diff('gendiff/file1.json', 'gendiff/file2.json'))
-print(json_stringify(generate_diff('gendiff/file1.json', 'gendiff/file2.json')))
+# print(generate_diff('gendiff/file1.json', 'gendiff/file2.json'))
+# print(json_stringify(generate_diff('gendiff/file1.json', 'gendiff/file2.json')))
