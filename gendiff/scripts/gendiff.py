@@ -1,5 +1,5 @@
 import argparse
-from gendiff import generate_diff, json_stringify, upload_file
+from gendiff import generate_diff, stylish, upload_file
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
 
     inner = generate_diff(first_file, second_file)
 
-    print(json_stringify(inner))
+    print(stylish(inner))
 
 
 if __name__ == '__main__':

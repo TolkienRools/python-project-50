@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
-from gendiff.uploaders import upload_file
-from gendiff.diff_funcs import generate_diff, json_stringify
+from gendiff import generate_diff, stylish, upload_file
+
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -21,6 +21,6 @@ def test_generate_diff(first, second, expected):
 	expected_txt = upload_file(FIXTURES_DIR / expected)
 
 	inner_state = generate_diff(first_in, second_in)
-	result = json_stringify(inner_state)
+	result = stylish(inner_state)
 
 	assert result == expected_txt

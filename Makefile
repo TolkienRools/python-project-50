@@ -1,6 +1,12 @@
 install:
 	poetry install
 
+build:
+	poetry build
+
+install-package:
+	python3 -m pip install --user dist/*.whl
+
 test:
 	poetry run pytest
 
