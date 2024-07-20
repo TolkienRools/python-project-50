@@ -77,11 +77,7 @@ def json_stringify(generated, spaces_count=4):
     return iter_(generated, 1)
 
 
-def generate_diff(first_json, second_json):
-
-    # изменить загрузку по абсолютным и относительным путям
-    first_file = json.load(open(first_json, "r"))
-    second_file = json.load(open(second_json, "r"))
+def generate_diff(first_file, second_file):
 
     def inner_(data1, data2):
 

@@ -1,5 +1,5 @@
 import argparse
-from gendiff import generate_diff
+from gendiff import generate_diff, json_stringify, upload_file
 
 
 def main():
@@ -12,7 +12,13 @@ def main():
 
     args = parser.parse_args()
 
-    print(generate_diff(args.first_file, args.second_file))
+
+    first_file = upload_file(args.first_file)
+    second_file = upload_file(args.second_file)
+
+    inner = generate_diff(first_file, second_file)
+
+    print(json_stringify(inner))
 
 
 if __name__ == '__main__':
