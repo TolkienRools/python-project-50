@@ -23,6 +23,9 @@ jobs:
           pip install poetry
           poetry install
 
+      - name: Run tests
+        run: make test
+
       - name: Test & publish code coverage
         uses: paambaati/codeclimate-action@v5.0.0
         env:
