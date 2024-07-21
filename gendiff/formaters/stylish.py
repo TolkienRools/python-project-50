@@ -3,6 +3,7 @@ import itertools
 
 SEPARATOR = " "
 
+
 def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
     if isinstance(inner_value, bool):
         return str(inner_value).lower()
@@ -29,7 +30,7 @@ def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
     return inner_value
 
 
-def stylish(generated, spaces_count=4):
+def stylish_formatter(generated, spaces_count=4):
 
     indent = 2
 

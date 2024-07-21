@@ -1,6 +1,13 @@
+from .formaters import (stylish_formatter,
+                        plain_formatter,
+                        json_formatter)
+
+FORMATTERS = {"stylish": stylish_formatter,
+              "plain": plain_formatter,
+              "json": json_formatter}
 
 
-def generate_diff(first_file, second_file):
+def generate_diff(first_file, second_file, formatter="stylish"):
 
     def inner_(data1, data2):
 
@@ -52,4 +59,6 @@ def generate_diff(first_file, second_file):
 
         return out_store
 
-    return inner_(first_file, second_file)
+    inner_repr = inner_(first_file, second_file)
+
+    return FORMATTERS[formatter](inner_repr)
