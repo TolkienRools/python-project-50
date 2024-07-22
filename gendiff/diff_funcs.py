@@ -63,5 +63,4 @@ def compare(data1, data2):
 
 def generate_diff(first_file, second_file, formatter="stylish"):
     inner_repr = compare(first_file, second_file)
-    print("INNER", inner_repr)
     return FORMATTERS[formatter](inner_repr)
