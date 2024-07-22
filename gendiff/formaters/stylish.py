@@ -2,9 +2,12 @@ import itertools
 
 
 SEPARATOR = " "
+INDENT = 2
+SIGNS_CONVERT = {"add": "+", "del": "-", "unchanged": " "}
+SPACES = 4
 
 
-def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
+def translate_to_simple(inner_value, depth=1):
     if isinstance(inner_value, bool):
         return str(inner_value).lower()
     if inner_value is None:
@@ -12,16 +15,14 @@ def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
 
     if isinstance(inner_value, dict):
 
-        specer_size = depth * spaces_count
-        deep_indent = SEPARATOR * (specer_size - indent)
-        current_indent = SEPARATOR * (specer_size - spaces_count)
+        specer_size = depth * SPACES
+        deep_indent = SEPARATOR * (specer_size - INDENT)
+        current_indent = SEPARATOR * (specer_size - SPACES)
 
         lines = []
 
         for key, value in inner_value.items():
-            tranlated_value = translate_to_simple(value, depth + 1,
-                                                  spaces_count,
-                                                  indent)
+            tranlated_value = translate_to_simple(value, depth + 1)
             lines.append(f'{deep_indent}  {key}: {tranlated_value}')
 
         result = itertools.chain("{", lines, [current_indent + "}"])
@@ -30,47 +31,40 @@ def translate_to_simple(inner_value, depth=1, spaces_count=4, indent=2):
     return inner_value
 
 
-def stylish_formatter(generated, spaces_count=4):
+def tree_stylization(current_value, depth):
+    if not isinstance(current_value, list):
+        return str(current_value)
 
-    indent = 2
+    specer_size = depth * SPACES
+    deep_indent = SEPARATOR * (specer_size - INDENT)
+    current_indent = SEPARATOR * (specer_size - SPACES)
 
-    signs_convert = {"add": "+", "del": "-", "unchanged": " "}
+    lines = []
 
-    def iter_(current_value, depth):
-        if not isinstance(current_value, list):
-            return str(current_value)
+    for element in current_value:
 
-        specer_size = depth * spaces_count
-        deep_indent = SEPARATOR * (specer_size - indent)
-        current_indent = SEPARATOR * (specer_size - spaces_count)
+        if element["type"] in ("add", "del", "unchanged"):
+            value = translate_to_simple(element["value"],
+                                        depth + 1)
 
-        lines = []
+            lines.append(f'{deep_indent}{SIGNS_CONVERT[element["type"]]}'
+                         f' {element["key"]}: {value}')
 
-        for element in current_value:
+        elif element["type"] == "changed":
+            old_value = translate_to_simple(element["old_value"],
+                                            depth + 1)
+            new_value = translate_to_simple(element["new_value"],
+                                            depth + 1)
+            lines.append(f'{deep_indent}- {element["key"]}: {old_value}')
+            lines.append(f'{deep_indent}+ {element["key"]}: {new_value}')
 
-            if element["type"] in ("add", "del", "unchanged"):
-                value = translate_to_simple(element["value"],
-                                            depth + 1, spaces_count,
-                                            indent)
+        elif element["type"] == "nested":
+            lines.append(f'{deep_indent}  {element["key"]}:'
+                         f' {tree_stylization(element["children"], depth + 1)}')
 
-                lines.append(f'{deep_indent}{signs_convert[element["type"]]}'
-                             f' {element["key"]}: {value}')
+    result = itertools.chain("{", lines, [current_indent + "}"])
+    return '\n'.join(result)
 
-            elif element["type"] == "changed":
-                old_value = translate_to_simple(element["old_value"],
-                                                depth + 1, spaces_count,
-                                                indent)
-                new_value = translate_to_simple(element["new_value"],
-                                                depth + 1, spaces_count,
-                                                indent)
-                lines.append(f'{deep_indent}- {element["key"]}: {old_value}')
-                lines.append(f'{deep_indent}+ {element["key"]}: {new_value}')
 
-            elif element["type"] == "nested":
-                lines.append(f'{deep_indent}  {element["key"]}:'
-                             f' {iter_(element["children"], depth + 1)}')
-
-        result = itertools.chain("{", lines, [current_indent + "}"])
-        return '\n'.join(result)
-
-    return iter_(generated, 1)
+def stylish_formatter(generated):
+    return tree_stylization(generated, 1)
