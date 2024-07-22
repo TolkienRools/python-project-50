@@ -13,10 +13,8 @@ def main():
 
     args = parser.parse_args()
 
-    first_file = upload_file(args.first_file)
-    second_file = upload_file(args.second_file)
-
-    print(generate_diff(first_file, second_file, args.format))
+    print(generate_diff(args.first_file, args.second_file,
+                        args.format))
 
 
 if __name__ == '__main__':
