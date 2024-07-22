@@ -1,6 +1,7 @@
 from .formaters import (stylish_formatter,
                         plain_formatter,
                         json_formatter)
+from .uploaders import upload_file
 
 FORMATTERS = {"stylish": stylish_formatter,
               "plain": plain_formatter,
@@ -62,5 +63,8 @@ def compare(data1, data2):
 
 
 def generate_diff(first_file, second_file, formatter="stylish"):
-    inner_repr = compare(first_file, second_file)
+    first = upload_file(first_file)
+    second = upload_file(second_file)
+
+    inner_repr = compare(first, second)
     return FORMATTERS[formatter](inner_repr)

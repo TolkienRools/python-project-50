@@ -33,8 +33,8 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 	                       "out_deep_json.txt", "json")
                           ])
 def test_generate_diff_stylish(first, second, expected, format):
-	first_in = upload_file(FIXTURES_DIR / first)
-	second_in = upload_file(FIXTURES_DIR / second)
+	first_in = FIXTURES_DIR / first
+	second_in = FIXTURES_DIR / second
 	expected_txt = upload_file(FIXTURES_DIR / expected)
 
 	result = generate_diff(first_in, second_in, format)
