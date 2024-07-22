@@ -1,5 +1,5 @@
 import argparse
-from gendiff import generate_diff, upload_file
+from gendiff import generate_diff
 
 
 def main():
