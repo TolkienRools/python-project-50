@@ -7,8 +7,7 @@ FORMATTERS = {"stylish": stylish_formatter,
               "json": json_formatter}
 
 
-def make_inner_element(type, key, values):
-    first_value, *second_value = values
+def make_inner_element(type, key, first_value, second_value=None):
 
     if type in ("add", "del", "unchanged"):
         return {
@@ -41,27 +40,28 @@ def compare(data1, data2):
         # add
         if key in add_keys:
             out_store.append(make_inner_element("add", key,
-                                                (data2[key],)))
+                                                data2[key]))
         # delete
         elif key in del_keys:
             out_store.append(make_inner_element("del", key,
-                                                (data1[key],)))
+                                                data1[key]))
         # nested  (two dicts, call recursion)
         elif (isinstance(data1.get(key), dict)
               and isinstance(data2.get(key), dict)):
             out_store.append(make_inner_element(
                 "nested", key,
-                (compare(data1.get(key), data2.get(key)),)))
+                compare(data1.get(key), data2.get(key))))
         elif data1.get(key) != data2.get(key):
             out_store.append(make_inner_element("changed", key,
-                                                (data1[key], data2[key])))
+                                                data1[key], data2[key]))
         else:
             out_store.append(make_inner_element("unchanged", key,
-                                                (data1[key],)))
+                                                data1[key]))
 
     return out_store
 
 
 def generate_diff(first_file, second_file, formatter="stylish"):
     inner_repr = compare(first_file, second_file)
+    print("INNER", inner_repr)
     return FORMATTERS[formatter](inner_repr)
