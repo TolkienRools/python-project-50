@@ -9,7 +9,6 @@ FORMATTERS = {"stylish": stylish_formatter,
 
 
 def make_inner_element(type, key, first_value, second_value=None):
-
     if type in ("add", "del", "unchanged"):
         return {
             "type": type,

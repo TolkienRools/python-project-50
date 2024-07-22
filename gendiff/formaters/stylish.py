@@ -1,6 +1,5 @@
 import itertools
 
-
 SEPARATOR = " "
 INDENT = 2
 SIGNS_CONVERT = {"add": "+", "del": "-", "unchanged": " "}

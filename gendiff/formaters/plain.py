@@ -31,7 +31,6 @@ def to_format_string(property, element):
 
 
 def plain_formatter(generated):
-
     def iter_(current_value, path=""):
 
         lines = []
