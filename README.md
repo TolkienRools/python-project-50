@@ -49,4 +49,4 @@ make install-package
 
 ## Example of installation and running
 
-[![asciicast](https://asciinema.org/a/5ScK5tVfwnU2BoAQb1m9xil1n.svg)](https://asciinema.org/a/5ScK5tVfwnU2BoAQb1m9xil1n)
+[![asciicast](https://asciinema.org/a/hFrk3NFfyXxWRuyZII7VnXXie.svg)](https://asciinema.org/a/hFrk3NFfyXxWRuyZII7VnXXie)
