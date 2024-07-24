@@ -1,7 +1,7 @@
 import itertools
 
 
-def translate_to_str(value):
+def format_value(value):
     if isinstance(value, bool):
         return str(value).lower()
     if value is None:
@@ -19,18 +19,18 @@ def translate_to_str(value):
 def to_format_string(property, element):
     base = f"Property '{property}'"
 
-    if element["type"] == "add":
-        return base + (f" was added with value: "
-                       f"{translate_to_str(element["value"])}")
-    elif element["type"] == "del":
+    if element['type'] == "added":
+        return base + (" was added with value: "
+                       f"{format_value(element['value'])}")
+    elif element['type'] == "deleted":
         return base + " was removed"
     else:
         return base + (" was updated. From "
-                       f"{translate_to_str(element["old_value"])}"
-                       f" to {translate_to_str(element["new_value"])}")
+                       f"{format_value(element['old_value'])}"
+                       f" to {format_value(element['new_value'])}")
 
 
-def plain_formatter(generated):
+def make_plain_format(generated):
     def iter_(current_value, path=""):
 
         lines = []
@@ -38,16 +38,16 @@ def plain_formatter(generated):
         for element in current_value:
 
             if path:
-                current_property = ".".join([path, element["key"]])
+                current_property = ".".join([path, element['key']])
             else:
-                current_property = element["key"]
+                current_property = element['key']
 
-            if element["type"] in ("add", "del", "changed"):
+            if element['type'] in ("added", "deleted", "changed"):
                 lines.append(to_format_string(current_property, element))
 
-            elif element["type"] == "nested":
+            elif element['type'] == "nested":
 
-                lines.append(iter_(element["children"], current_property))
+                lines.append(iter_(element['children'], current_property))
 
         result = itertools.chain(lines)
         return '\n'.join(result)

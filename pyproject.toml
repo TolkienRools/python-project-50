@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "hexlet-code"
 version = "0.1.0"
-description = ""
+description = "Gendiff tool that allows user to compare two files (yml, json formats)"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [

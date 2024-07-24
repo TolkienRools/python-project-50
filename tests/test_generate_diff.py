@@ -1,9 +1,13 @@
 import pytest
 from pathlib import Path
-from gendiff import generate_diff, upload_file
+from gendiff import generate_diff, load_file
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
+
+def open_file(path):
+    with open(path, "r") as stream:
+        return stream.read()
 
 @pytest.mark.parametrize("first,second,expected,format",
                          [("first_flat.json", "second_flat.json",
@@ -34,7 +38,7 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 def test_generate_diff_stylish(first, second, expected, format):
     first_in = FIXTURES_DIR / first
     second_in = FIXTURES_DIR / second
-    expected_txt = upload_file(FIXTURES_DIR / expected)
+    expected_txt = open_file(FIXTURES_DIR / expected)
 
     result = generate_diff(first_in, second_in, format)
 

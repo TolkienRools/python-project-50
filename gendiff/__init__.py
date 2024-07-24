@@ -1,5 +1,5 @@
-from .diff_funcs import generate_diff
-from .uploaders import upload_file
+from gendiff.diff_funcs import generate_diff
+from gendiff.uploaders import load_file
 
 __all__ = ('generate_diff',
-           'upload_file')
+           'load_file')

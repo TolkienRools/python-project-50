@@ -1,7 +1,7 @@
-from .stylish import stylish_formatter
-from .plain import plain_formatter
-from .json import json_formatter
+from gendiff.formaters.stylish import make_stylish_format
+from gendiff.formaters.plain import make_plain_format
+from gendiff.formaters.json import make_json_format
 
-__all__ = ('stylish_formatter',
-           'plain_formatter',
-           'json_formatter')
+__all__ = ('make_stylish_format',
+           'make_plain_format',
+           'make_json_format')

@@ -1,15 +1,15 @@
-from .formaters import (stylish_formatter,
-                        plain_formatter,
-                        json_formatter)
-from .uploaders import upload_file
+from gendiff.formaters import (make_stylish_format,
+                               make_plain_format,
+                               make_json_format)
+from gendiff.uploaders import load_file
 
-FORMATTERS = {"stylish": stylish_formatter,
-              "plain": plain_formatter,
-              "json": json_formatter}
+FORMATTERS = {"stylish": make_stylish_format,
+              "plain": make_plain_format,
+              "json": make_json_format}
 
 
 def make_inner_element(type, key, first_value, second_value=None):
-    if type in ("add", "del", "unchanged"):
+    if type in ("added", "deleted", "unchanged"):
         return {
             "type": type,
             "key": key,
@@ -39,11 +39,11 @@ def compare(data1, data2):
     for key in sorted(set(data1.keys()) | set(data2.keys())):
         # add
         if key in add_keys:
-            out_store.append(make_inner_element("add", key,
+            out_store.append(make_inner_element("added", key,
                                                 data2[key]))
         # delete
         elif key in del_keys:
-            out_store.append(make_inner_element("del", key,
+            out_store.append(make_inner_element("deleted", key,
                                                 data1[key]))
         # nested  (two dicts, call recursion)
         elif (isinstance(data1.get(key), dict)
@@ -61,9 +61,9 @@ def compare(data1, data2):
     return out_store
 
 
-def generate_diff(first_file, second_file, formatter="stylish"):
-    first = upload_file(first_file)
-    second = upload_file(second_file)
+def generate_diff(file1, file2, formatter="stylish"):
+    file1 = load_file(file1)
+    file2 = load_file(file2)
 
-    inner_repr = compare(first, second)
+    inner_repr = compare(file1, file2)
     return FORMATTERS[formatter](inner_repr)

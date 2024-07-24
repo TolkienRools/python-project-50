@@ -4,7 +4,7 @@
         "key": "common",
         "children": [
             {
-                "type": "add",
+                "type": "added",
                 "key": "follow",
                 "value": false
             },
@@ -14,7 +14,7 @@
                 "value": "Value 1"
             },
             {
-                "type": "del",
+                "type": "deleted",
                 "key": "setting2",
                 "value": 200
             },
@@ -25,12 +25,12 @@
                 "new_value": null
             },
             {
-                "type": "add",
+                "type": "added",
                 "key": "setting4",
                 "value": "blah blah"
             },
             {
-                "type": "add",
+                "type": "added",
                 "key": "setting5",
                 "value": {
                     "key5": "value5"
@@ -58,7 +58,7 @@
                         "value": "value"
                     },
                     {
-                        "type": "add",
+                        "type": "added",
                         "key": "ops",
                         "value": "vops"
                     }
@@ -92,7 +92,7 @@
         ]
     },
     {
-        "type": "del",
+        "type": "deleted",
         "key": "group2",
         "value": {
             "abc": 12345,
@@ -102,7 +102,7 @@
         }
     },
     {
-        "type": "add",
+        "type": "added",
         "key": "group3",
         "value": {
             "deep": {

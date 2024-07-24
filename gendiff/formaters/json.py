@@ -1,5 +1,5 @@
 import json
 
 
-def json_formatter(generated):
-    return json.dumps(generated, indent=4, separators=(',', ': '))
+def make_json_format(generated):
+    return json.dumps(generated, indent=4)
