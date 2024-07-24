@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from gendiff import generate_diff, load_file
+from gendiff import generate_diff
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 
@@ -8,6 +8,7 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 def open_file(path):
     with open(path, "r") as stream:
         return stream.read()
+
 
 @pytest.mark.parametrize("first,second,expected,format",
                          [("first_flat.json", "second_flat.json",
