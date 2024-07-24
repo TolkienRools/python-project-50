@@ -3,6 +3,7 @@ from gendiff.formaters import (make_stylish_format,
                                make_json_format)
 from gendiff.uploaders import load_file
 
+
 FORMATTERS = {"stylish": make_stylish_format,
               "plain": make_plain_format,
               "json": make_json_format}
